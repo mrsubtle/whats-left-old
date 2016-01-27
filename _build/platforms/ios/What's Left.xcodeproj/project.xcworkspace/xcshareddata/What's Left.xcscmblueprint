@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "6CD6EFA4D426E4199E8B190E7A4E896E90B73428",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "6CD6EFA4D426E4199E8B190E7A4E896E90B73428" : 0,
+    "36840EBA302F74A9981AD4617C14378F8FD6C370" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "D3367A72-3974-4DFC-A5CE-E47078BD1A48",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "6CD6EFA4D426E4199E8B190E7A4E896E90B73428" : "whats-left\/",
+    "36840EBA302F74A9981AD4617C14378F8FD6C370" : ""
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "What's Left",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "_build\/platforms\/ios\/What's Left.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/richard-bennett-cti\/Royale.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "36840EBA302F74A9981AD4617C14378F8FD6C370"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mrsubtle\/whats-left.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "6CD6EFA4D426E4199E8B190E7A4E896E90B73428"
+    }
+  ]
+}
