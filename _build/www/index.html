@@ -11,8 +11,19 @@
 </head>
 <body>
 
-<app class="hidden">
-  <screen id="login" class="hidden"></screen>
+<app>
+  <screen id="login" class="hidden">
+    <form id="login">
+      <fieldset>
+        <input type="email" id="txt_username" placeholder="you@server.net">
+      </fieldset>
+      <fieldset>
+        <input type="password" id="txt_password" placeholder="password">
+      </fieldset>
+      <div id="feedback_login"></div>
+      <button id="btn_login" type="submit">Login</button>
+    </form>
+  </screen>
   <screen id="signup" class="hidden"></screen>
   <screen id="accounts" class="hidden"></screen>
   <screen id="account-detail" class="hidden"></screen>
