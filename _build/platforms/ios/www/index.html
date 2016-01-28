@@ -24,10 +24,81 @@
       <button id="btn_login" type="submit">Login</button>
     </form>
   </screen>
-  <screen id="signup" class="hidden"></screen>
-  <screen id="accounts" class="hidden"></screen>
-  <screen id="account-detail" class="hidden"></screen>
+  <screen id="signup" class="hidden">
+    Sign up
+  </screen>
+  <screen id="accounts" class="hidden">
+    <nav class="top">
+      <left></left>
+      <screen-title>
+        Accounts
+      </screen-title>
+      <right>
+        <i class="touchable">
+          <img src="img/icon-add.svg" width="60" height="60">
+        </i>
+      </right>
+    </nav>
+    <tabs>
+      <tab data-for="accountsByWhatsLeft" class="touchable active">
+        <tab-title>by What's Left</tab-title>
+      </tab>
+      <tab data-for="accountsByBalance" class="touchable">
+        <tab-title>by Balance</tab-title>
+      </tab>
+    </tabs>
+    <content>
+      <list id="accountsByBalance" class="tab-target hidden"></list>
+      <list id="accountsByWhatsLeft" class="tab-target hidden"></list>
+    </content>
+  </screen>
+  <screen id="account-detail" class="hidden">
+    <nav class="top">
+      <left>
+        <i class="touchable"><img src="img/icon-back.svg" width="32" height="60"></i>
+      </left>
+      <screen-title>
+        Account detail
+      </screen-title>
+      <right>
+        <i class="touchable">
+          <img src="img/icon-add.svg" width="60" height="60">
+        </i>
+      </right>
+    </nav>
+    <hero></hero>
+    <pills>
+      <pill data-for="accountsByWhatsLeft" class="touchable active">
+        <pill-title>by What's Left</pill-title>
+      </pill>
+      <pill data-for="accountsByBalance" class="touchable">
+        <pill-title>by Balance</pill-title>
+      </pill>
+    </pills>
+    <content></content>
+  </screen>
 </app>
+
+<!-- START // UI Templates -->
+<script id="tpl_accountListItem" type="text/template">
+  <list-item data-aid="<%= TD.id %>" class="touchable flex-container flex-container-row flex-container-spacebetween">
+    <name class="flex-item flex-item-elastic">
+      <%= TD.get('name') %>
+    </name>
+    <value class="flex-item flex-container flex-container-column">
+      <main class="flex-item <% if(TD.get('balance') <= 0){ print('negative') } %>">
+        $<%= TD.get('balance').format(0,3,',','.') %>
+      </main>
+      <detail class="flex-item <% if(TD.get('whatsLeft') <= 0){ print('negative') } %>">
+        $<%= TD.get('whatsLeft').format(0,3,',','.') %> left till <% if( moment(TD.get('nextDepositDate')).isAfter( moment().add(6,'days') ) ){ print(moment(TD.get('nextDepositDate')).format('MMM Do')); }else{ print(moment(TD.get('nextDepositDate')).format('dddd')); }  %>
+      </detail>
+    </value>
+    <disclosure class="flex-item">
+      <i><img src="img/icon-disclosure.svg"></i>
+    </disclosure>
+  </list-item>
+</script>
+<!-- END // UI Templates -->
 
 <script type="text/javascript" src="cordova.js"></script>
 <script src="js/lib/underscore-min.js"></script>

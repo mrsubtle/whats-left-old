@@ -20,8 +20,8 @@
   
   @uiBodySize: 1.7rem;
 
-  @touchBase: 60px;
-  @statusBarHeight: 0px;
+  @touchBase: 50px;
+  @statusBarHeight: 10px;
   @navHeight: (@touchBase + @statusBarHeight);
 
   //@appBGsolid: rgb(248,243,231); //F8F3E7
@@ -49,7 +49,7 @@
   .touched, .disabled {
     opacity: 0.37;
   }
-  .flexContainer {
+  .flex-container {
     display: -ms-flexbox !important;
     display: -webkit-flex !important;
     display: flex !important;
@@ -68,23 +68,27 @@
     -webkit-align-items: center !important;
     -ms-flex-align: center !important;
     align-items: center !important;
-    &.flexContainerRow {
-      -webkit-flex-direction: row !important;
-      -ms-flex-direction: row !important;
-      flex-direction: row !important;
-    }
-    &.flexContainerColumn {
-      -webkit-flex-direction: column !important;
-      -ms-flex-direction: column !important;
-      flex-direction: column !important;
-    }
-    &.flexContainerSpaceAround {
-      -webkit-justify-content: space-around !important;
-      -ms-flex-pack: distribute !important;
-      justify-content: space-around !important;
-    }
   }
-  .flexItem {
+  .flex-container-row {
+    -webkit-flex-direction: row !important;
+    -ms-flex-direction: row !important;
+    flex-direction: row !important;
+  }
+  .flex-container-column {
+    -webkit-flex-direction: column !important;
+    -ms-flex-direction: column !important;
+    flex-direction: column !important;
+  }
+  .flex-container-spacearound {
+    -webkit-justify-content: space-around !important;
+    -ms-flex-pack: distribute !important;
+    justify-content: space-around !important;
+  }
+  .flex-container-spacebetween {
+    -webkit-justify-content: space-between !important;
+    justify-content: space-between !important;
+  }
+  .flex-item {
     -webkit-order: 0 !important;
     -ms-flex-order: 0 !important;
     order: 0 !important;
@@ -94,11 +98,11 @@
     -webkit-align-self: auto !important;
     -ms-flex-item-align: auto !important;
     align-self: auto !important;
-    &.flexItemElastic {
-      -webkit-flex: 1 1 auto !important;
-      -ms-flex: 1 1 auto !important;
-      flex: 1 1 auto !important;
-    }
+  }
+  .flex-item-elastic {
+    -webkit-flex: 1 1 auto !important;
+    -ms-flex: 1 1 auto !important;
+    flex: 1 1 auto !important;
   }
 
 // ANIMATION CLASSES ========================
@@ -220,8 +224,6 @@
     }
   }
 
-
-
 // DEFINITIONS
 
   * {
@@ -275,7 +277,44 @@
     top: 0px; left: 0px;
     width: 100%; height: 100%;
     background-color: @appBGsolid;
+    nav.top {
+      display: block;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: @navHeight;
+      margin: 0; padding: 0;
+      /* Nav BG: */
+      background: rgba(215,215,215,0.00);
+      box-shadow: inset 0px -1px 0px 0px rgba(0,0,0,0.27);
+      .flex-container();
+      .flex-container-row();
+      left, screen-title, right {
+        display: block;
+        position: relative;
+      }
+      left {
+        min-width: 2rem;
+        text-align: center;
+      }
+      screen-title {
+        font-family: AvenirNext-Bold;
+        font-size: 1.3rem;
+        color: #4A4A4A;
+        .flex-item-elastic();
+      }
+    }
+    content {
+      display: block;
+      position: absolute;
+      top: @navHeight; left: 0;
+      bottom: 0; right: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
   }
+
+
 
 // FORM ELEMENTS
 
@@ -462,4 +501,146 @@
     font-size: @uiBodySize;
     color: @tint;
     text-decoration: none;
+  }
+
+// UI-ELEMENTS
+
+  .table-cell-bg {
+    /* Table Cell BG: */
+    background: rgba(215,215,215,0.00);
+    box-shadow: inset 0px -1px 0px 0px rgba(0,0,0,0.07);
+  }
+
+  i {
+    font-style: normal;
+    display: inline-block;
+    img {
+      vertical-align: middle;
+    }
+  }
+
+  tabs {
+    display: block;
+    position: relative;
+    .flex-container();
+    .flex-container-row();
+    min-height: @touchBase;
+    tab {
+      display: block;
+      position: relative;
+      /* Tab BG: */
+      background: rgba(215,215,215,0.00);
+      box-shadow: inset 0px -1px 0px 0px rgba(0,0,0,0.07);
+      height: 100%;
+      .flex-item();
+      .flex-item-elastic();
+      .flex-container();
+      tab-title {
+        .flex-item();
+        /* Tab text: */
+        font-family: AvenirNext-Regular;
+        font-size: 11px;
+        color: #4A4A4A;
+      }
+      &.active {
+        /* Tab BG: */
+        background: rgba(215,215,215,0.00);
+        box-shadow: inset 0px -2px 0px 0px rgba(0,0,0,0.27);
+        tab-title {
+          /* Tab text: */
+          font-family: AvenirNext-DemiBold;
+        }
+      }
+    }
+  }
+
+  pills {
+    display: block;
+    position: relative;
+    .flex-container();
+    .flex-container-row();
+    min-height: @touchBase;
+    pill {
+      display: block;
+      position: relative;
+      padding: 0 2rem;
+      /* Tab BG: */
+      background: rgba(215,215,215,0.00);
+      box-shadow: inset 0px -1px 0px 0px rgba(0,0,0,0.07);
+      height: 100%;
+      .flex-item();
+      .flex-container();
+      pill-title {
+        .flex-item();
+        /* Tab text: */
+        font-family: AvenirNext-Regular;
+        font-size: 11px;
+        color: #4A4A4A;
+      }
+      &.active {
+        /* Tab BG: */
+        background: rgba(215,215,215,0.00);
+        box-shadow: inset 0px -2px 0px 0px rgba(0,0,0,0.27);
+        pill-title {
+          /* Tab text: */
+          font-family: AvenirNext-Medium;
+        }
+      }
+    }
+  }
+
+  list {
+    display: block;
+    margin: 0; padding: 0;
+    width: 100%;
+    list-item {
+      display: block;
+      margin: 0; padding: 0 1rem 0 2rem;
+      width: 100%;
+      min-height: 5rem;
+      .table-cell-bg();
+      name {
+        font-family: AvenirNext-Regular;
+        font-size: 1.3rem;
+        color: #4A4A4A;
+      }
+      value {
+        text-align: right;
+        main {
+          width: 100%;
+          font-family: AvenirNext-Regular;
+          font-size: 1.3rem;
+          color: #4A4A4A;
+          &.negative {
+            color: #F55723;
+          }
+        }
+        detail {
+          width: 100%;
+          font-family: AvenirNext-Medium;
+          font-size: 0.7rem;
+          color: rgba(73,73,73,0.57);
+          &.negative {
+            color: rgba(244,87,35,0.57);
+          }
+        }
+      }
+      disclosure {
+        width: 2rem;
+        text-align: right;
+      }
+    }
+  }
+
+// SCREEN-SPECIFIC
+
+  screen#accounts {
+    tabs {
+      position: absolute;
+      top: @navHeight; left: 0;
+      width: 100%; height: @touchBase;
+    }
+    content {
+      top: (@navHeight + @touchBase);
+    }
   }

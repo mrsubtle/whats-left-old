@@ -37,6 +37,18 @@
     if (moment) { this.setMinutes(this.getMinutes() + moment().utcOffset()); }
     return this;
   }
+// Modify Number object for extended formatting
+  Number.prototype.format = function(n, x, s, c) {
+    // n = number of decimals
+    // x = number of characters in groups
+    // s = separator character
+    // c = decimal separator character
+
+    var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+      num = this.toFixed(Math.max(0, ~~n));
+
+    return (c ? num.replace('.', c) : num).replace(new RegExp(re, 'g'), '$&' + (s || ','));
+  };
 
 var t = {
   d1 : new Date(1430456400000), //May 1, 2015
@@ -47,6 +59,8 @@ var meta = {
   userP : {
   },
   userLastSyncAt : new Date(2000,01,01),
+  userAccounts : [],
+  userAccountsLastSyncAt : new Date(2000,01,01),
   deviceReady : false,
   deviceOnline : false
 };
@@ -161,9 +175,13 @@ var views = {
     login : {
       initialize : function(){
         app.l("Login screen INIT");
-        this.remE().done(this.addE().done(this.render));
+        views.screens.login.remE().done(views.screens.login.addE().done(views.screens.login.render));
       },
-      getData : function(){},
+      getData : function(){
+        return $.Deferred(function(f){
+          f.resolve();
+        }).promise();
+      },
       render : function(){
         return $.Deferred(function(f){
           $('screen#login').removeClass('hidden');
@@ -221,11 +239,55 @@ var views = {
       remE : function(){}
     },
     accounts : {
-      initialize : function(){},
-      getData : function(){},
-      render : function(){},
-      addE : function(){},
-      remE : function(){}
+      initialize : function(){
+        views.screens.accounts.getData(true).done(views.screens.accounts.render);
+      },
+      getData : function(forceDataUpdate){
+        return $.Deferred(function(f){
+          act.getAccounts(forceDataUpdate).done(function(d){
+            //DEBUG
+            console.log(d);
+            meta.userAccounts = d;
+            meta.userAccountsLastSyncAt = new Date();
+            f.resolve();
+          }).fail(function(e){
+            app.l(e,3);
+          });
+        }).promise();
+      },
+      render : function(){
+        return $.Deferred(function(f){
+          var accountListItemTempalte = _.template($('#tpl_accountListItem').html());
+          $('screen#accounts list').html('');
+          _.each(meta.userAccounts, function(o,i,a){
+            $('screen#accounts list#accountsByBalance').append(accountListItemTempalte(o));
+          });
+          _.each(_.sortBy(meta.userAccounts, function(i){ return -i.get('whatsLeft'); }), function(o,i,a){
+            $('screen#accounts list#accountsByWhatsLeft').append(accountListItemTempalte(o));
+          });
+          ui.tabs.check();
+          views.screens.accounts.remE().done(views.screens.accounts.addE);
+          $('screen#accounts').removeClass('hidden');
+          f.resolve();
+        }).promise();
+      },
+      addE : function(){
+        return $.Deferred(function(f){
+          touch.reset();
+          $('screen#accounts tab').hammer().on('tap',function(){
+            $('screen#accounts tab').removeClass('active')
+            $(this).addClass('active');
+            ui.tabs.check();
+          });
+          f.resolve();
+        }).promise();
+      },
+      remE : function(){
+        return $.Deferred(function(f){
+          $('screen#accounts tab').hammer().off('tap');
+          f.resolve();
+        }).promise();
+      }
     },
     accountDetail : {
       initialize : function(){},
