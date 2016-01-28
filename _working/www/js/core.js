@@ -44,12 +44,6 @@ var t = {
 };
 
 var meta = {
-  keys : {
-    parse : {
-      ApplicationID : "6EGKiJSZgvWOGpzHdJsxDfTJgLCIwMCFrn9WnLF7",
-      JavascriptKey : "OaY803d3UixwhcgxgTFn8Agl7vdLECMXepArLOiv"
-    }
-  },
   userP : {
   },
   userLastSyncAt : new Date(2000,01,01),
@@ -89,7 +83,7 @@ var app = {
   initialize: function() {
     console.log('App init');
     //Parse INIT
-    Parse.initialize(meta.keys.parse.ApplicationID, meta.keys.parse.JavascriptKey);
+    Parse.initialize(c.keys.parse.ApplicationID, c.keys.parse.JavascriptKey);
 
     //bind events necessary on mobile
     app.bindEvents();

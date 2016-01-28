@@ -12,7 +12,7 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          '_build/www/js/core.min.js': ['_working/www/js/core.js']
+          '_build/www/js/core.min.js': ['_working/www/js/config.i.js','_working/www/js/core.js']
         }
       }
     },
