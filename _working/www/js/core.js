@@ -243,16 +243,24 @@ var views = {
         views.screens.accounts.getData(true).done(views.screens.accounts.render);
       },
       getData : function(forceDataUpdate){
+        if (typeof forceDataUpdate == "unknown") {
+          forceDataUpdate = false;
+        }
         return $.Deferred(function(f){
-          act.getAccounts(forceDataUpdate).done(function(d){
-            //DEBUG
-            console.log(d);
-            meta.userAccounts = d;
-            meta.userAccountsLastSyncAt = new Date();
-            f.resolve();
-          }).fail(function(e){
-            app.l(e,3);
-          });
+          if (meta.userAccountsLastSyncAt <= new Date().subHours(2) || forceDataUpdate) {
+            app.l('Fetching accounts remotely',2);
+            act.getAccounts().done(function(d){
+              meta.userAccounts = d;
+              meta.userAccountsLastSyncAt = new Date();
+              f.resolve(d);
+            }).fail(function(e){
+              app.l(e,3);
+              f.reject(e);
+            });
+          } else {
+            app.l('Fetching accounts from cache',2);
+            f.resolve(meta.userAccounts);
+          }
         }).promise();
       },
       render : function(){
@@ -290,20 +298,56 @@ var views = {
       }
     },
     accountDetail : {
-      initialize : function(){},
-      getData : function(){},
-      render : function(){},
-      addE : function(){},
-      remE : function(){}
+      initialize : function(){
+        views.screens.accountDetail.getData(true).done(views.screens.accountDetail.render);
+      },
+      getData : function(forceDataUpdate){
+        if (typeof forceDataUpdate == "unknown") {
+          forceDataUpdate = false;
+        }
+        return $.Deferred(function(f){
+          act.getAccountDetails(forceDataUpdate).done(function(d){
+            //DEBUG
+            console.log(d);
+            meta.userAccounts = d;
+            meta.userAccountsLastSyncAt = new Date();
+            f.resolve();
+          }).fail(function(e){
+            app.l(e,3);
+            f.reject(e);
+          });
+          f.resolve();
+        }).promise();
+      },
+      render : function(){
+        return $.Deferred(function(f){
+          f.resolve();
+        }).promise();
+      },
+      addE : function(){
+        return $.Deferred(function(f){
+          f.resolve();
+        }).promise();
+      },
+      remE : function(){
+        return $.Deferred(function(f){
+          f.resolve();
+        }).promise();
+      }
     },
   }
 };
 
+var temp = {};
+
 var util = {
-  nextOccurrence : function(date, frequency){
-    // returns a moment of the next occurence of the bill/deposit
+  buildFrequencyArray : function(firstDate, frequency, startMoment, endMoment){
+    // returns an array of date object frequencies within the given range
+    // firstDate and frequency are mandatory
+    // if no startMoment specified, assume now
+    // if no endMoment specified, assume 2 years
     /* frequency:
-      1 = yearly,
+      1 = annually,
       2 = semi-anually,
       4 = quarterly,
       6 = bi-monthly,
@@ -313,20 +357,194 @@ var util = {
       52 = weekly,
       365 = daily
     */
-    var next = moment();
-    switch(frequency) {
+    if (typeof startMoment === "unknown") {
+      app.l('No startMoment, setting default.',2);
+      var startMoment = moment();
+    }
+    if (typeof endMoment === "unknown") {
+      app.l('No endMoment, setting default.',2);
+      var endMoment = startMoment.add(2,'y');
+    }
+    if( moment.isDate(firstDate) ){
+      firstDate = moment(firstDate);
+    }
+    console.log(startMoment);
+    console.log(endMoment);
+    switch (frequency) {
+      case 1:
+        var recurrence = moment()
+                      .recur({
+                        start: startMoment,
+                        end: endMoment
+                      })
+                      .every(firstDate.date()).daysOfMonth()
+                      .every(firstDate.month()).monthsOfYear();
+        console.log(recurrence.endDate(moment().add(2,'y')).all());
+        temp.r = recurrence;
+        break;
+      case 2:
+        break;
+      case 4:
+        break;
+      case 6:
+        break;
       case 12:
-        var now = moment();
-        var then = moment(date);
+        break;
+      case 24:
+        break;
+      case 26:
+        break;
+      case 52:
+        break;
+      case 365:
+        break;
+      default:
+        break;
+    }
+  },
+  nextOccurrence : function(date, frequency){
+    // returns a moment of the next occurence of the bill/deposit
+    /* frequency:
+      1 = annually,
+      2 = semi-anually,
+      4 = quarterly,
+      6 = bi-monthly,
+      12 = monthly,
+      24 = semi-monthly,
+      26 = bi-weekly,
+      52 = weekly,
+      365 = daily
+    */
+    var now = moment();
+    var then = moment(date);
+    var next = moment({
+      'year': 1999,
+      'month': 11,
+      'date': 31,
+      'hour': 23,
+      'minute': 59,
+      'second': 59,
+      'millisecond': 0
+    });
+    switch(frequency) {
+      case 1:
+        if ( (now.date() > then.month()) || ((now.month() == then.month()) && (now.date() > then.date()) ) ){
+          next = moment({
+            'year': now.year(),
+            'month': then.month(),
+            'date': then.date(),
+            'hour': 23,
+            'minute': 59,
+            'second': 59,
+            'millisecond': 0
+          }).add(1,'y');
+        } else {
+          next = moment({
+            'year': now.year(),
+            'month': then.month(),
+            'date': then.date(),
+            'hour': 23,
+            'minute': 59,
+            'second': 59,
+            'millisecond': 0
+          });
+        }
+        break;
+      case 2:
+        var month1 = 0;
+        if (then.month() >= 6) {
+          month1 = then.month() - 6;
+        } else {
+          month1 = then.month();
+        }
+        var month2 = month1 + 6;
+        var oc1 = moment({
+          'year': now.year(),
+          'month': month1,
+          'date': then.date(),
+          'hour': 23,
+          'minute': 59,
+          'second': 59,
+          'millisecond': 0
+        });
+        var oc2 = moment({
+          'year': now.year(),
+          'month': month2,
+          'date': then.date(),
+          'hour': 23,
+          'minute': 59,
+          'second': 59,
+          'millisecond': 0
+        });
+        if ( moment(now).isAfter(oc1) ){
+          next = oc2;
+        } else {
+          next = oc1;
+        }
+        break;
+      case 4:
+        var month1 = 0;
+        if (then.month() >= 3) {
+          month1 = then.month() - 3;
+        } else {
+          month1 = then.month();
+        }
+        var month2 = month1 + 3;
+        var month3 = month2 + 3;
+        var month4 = month3 + 3;
+        var oc1 = moment({
+          'year': now.year(),
+          'month': month1,
+          'date': then.date(),
+          'hour': 23,
+          'minute': 59,
+          'second': 59,
+          'millisecond': 0
+        });
+        var oc2 = moment({
+          'year': now.year(),
+          'month': month2,
+          'date': then.date(),
+          'hour': 23,
+          'minute': 59,
+          'second': 59,
+          'millisecond': 0
+        });
+        var oc3 = moment({
+          'year': now.year(),
+          'month': month3,
+          'date': then.date(),
+          'hour': 23,
+          'minute': 59,
+          'second': 59,
+          'millisecond': 0
+        });
+        var oc4 = moment({
+          'year': now.year(),
+          'month': month4,
+          'date': then.date(),
+          'hour': 23,
+          'minute': 59,
+          'second': 59,
+          'millisecond': 0
+        });
+        if ( moment(now).isAfter(oc1) ){
+          next = oc2;
+        } else {
+          next = oc1;
+        }
+        break;
+      case 12:
+        var delta = moment();
         if (then.date() >= now.date()) {
           next = moment({
             'year': now.year(),
             'month': now.month(),
             'date': then.date(),
-            'hour': 0,
-            'minute': 0,
-            'second': 0,
-            'millisecond': 1
+            'hour': 23,
+            'minute': 59,
+            'second': 59,
+            'millisecond': 0
           });
           console.log(next.fromNow());
           console.log(next.format('llll'));
@@ -335,10 +553,10 @@ var util = {
             'year': now.year(),
             'month': now.month(),
             'date': then.date(),
-            'hour': 0,
-            'minute': 0,
-            'second': 0,
-            'millisecond': 1
+            'hour': 23,
+            'minute': 59,
+            'second': 59,
+            'millisecond': 0
           }).add(1, 'M');
           console.log(next.fromNow());
           console.log(next.format('llll'));

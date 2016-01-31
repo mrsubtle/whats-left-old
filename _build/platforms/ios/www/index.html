@@ -79,6 +79,8 @@
   </screen>
 </app>
 
+<overlay></overlay>
+
 <!-- START // UI Templates -->
 <script id="tpl_accountListItem" type="text/template">
   <list-item data-aid="<%= TD.id %>" class="touchable flex-container flex-container-row flex-container-spacebetween">
@@ -90,12 +92,79 @@
         $<%= TD.get('balance').format(0,3,',','.') %>
       </main>
       <detail class="flex-item <% if(TD.get('whatsLeft') <= 0){ print('negative') } %>">
-        $<%= TD.get('whatsLeft').format(0,3,',','.') %> left till <% if( moment(TD.get('nextDepositDate')).isAfter( moment().add(6,'days') ) ){ print(moment(TD.get('nextDepositDate')).format('MMM Do')); }else{ print(moment(TD.get('nextDepositDate')).format('dddd')); }  %>
+        $&nbsp;<%= TD.get('whatsLeft').format(0,3,',','.') %> left till <% if( moment(TD.get('nextDepositDate')).isAfter( moment().add(6,'days') ) ){ print(moment(TD.get('nextDepositDate')).format('MMM Do')); }else{ print(moment(TD.get('nextDepositDate')).format('dddd')); }  %>
       </detail>
     </value>
     <disclosure class="flex-item">
       <i><img src="img/icon-disclosure.svg"></i>
     </disclosure>
+  </list-item>
+</script>
+<script id="tpl_accountHero" type="text/template">
+  <hero-detail data-aid="<%= TD.id %>" class="touchable flex-container flex-container-column flex-container-spacearound">
+    <balance class="flex-item flex-container flex-container-row flex-container-spacebetween">
+      <balance-operator class="flex-item">$</balance-operator>
+      <balance-input class="flex-item flex-item-elastic" id="balance input">
+        <input type="number" value="<%= TD.get('balance') %>" class="hidden">
+        <balance-value><%= TD.get('balance').format(0,3,',','.') %></balance-value>
+      </balance-input>
+    </balance>
+  </hero-detail>
+</script>
+<script id="tpl_billListItem" type="text/template">
+  <list-item data-aid="<%= TD.id %>" class="bill touchable flex-container flex-container-row flex-container-spacebetween">
+    <name class="flex-item flex-item-elastic">
+      <%= TD.get('name') %>
+    </name>
+    <value class="flex-item flex-container flex-container-column">
+      <main class="flex-item">
+        $-<%= TD.get('amount').format(0,3,',','.') %>
+      </main>
+      <detail class="flex-item">
+        <%
+        /* frequency:
+          1 = yearly,
+          2 = semi-anually,
+          4 = quarterly,
+          6 = bi-monthly,
+          12 = monthly,
+          24 = semi-monthly,
+          26 = bi-weekly,
+          52 = weekly,
+          365 = daily
+        */
+          switch (TD.get('frequency')) {
+            case 1:
+              print('Annually on '+moment(TD.get('nextDate')).format('MMM Do'));
+              break;
+            case 2;
+              print('Semi-anually starting '+moment(TD.get('nextDate')).format('MMM Do'));
+              break;
+            case 4;
+              print('Quarterly starting '+moment(TD.get('nextDate')).format('MMM Do'));
+              break;
+            case 6;
+              print('Bi-monthly starting '+moment(TD.get('nextDate')).format('MMM Do'));
+              break;
+            case 12;
+              print('Monthly on the '+moment(TD.get('nextDate')).format('Do'));
+              break;
+            case 24;
+              var day2 = moment(TD.get('nextDate')).add(15,'days');
+              print('Semi-monthly');
+              break;
+            case 26;
+              print('Bi-weekly, every 2nd '+moment(TD.get('nextDate')).format('ddd'));
+              break;
+            case 52;
+              print('Weekly, every '+moment(TD.get('nextDate')).format('ddd'));
+              break;
+            default;
+              print('Daily');
+          }
+        %>
+      </detail>
+    </value>
   </list-item>
 </script>
 <!-- END // UI Templates -->
@@ -108,6 +177,7 @@
 <script src="js/lib/jquery.hammer.js"></script>
 <script src="js/lib/parse-1.6.4.min.js"></script>
 <script src="js/lib/moment.min.js"></script>
+<script src="js/lib/moment-recur.min.js"></script>
 <script type="text/javascript" src="js/core.min.js"></script>
 <script type="text/javascript">
   app.initialize();
