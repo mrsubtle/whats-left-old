@@ -341,7 +341,8 @@ var views = {
 var temp = {};
 
 var util = {
-  buildFrequencyArray : function(firstDate, frequency, startMoment, endMoment){
+  buildSchedule : function(){},
+  buildOccurrenceArray : function(firstDate, frequency, startMoment, endMoment){
     // returns an array of date object frequencies within the given range
     // firstDate and frequency are mandatory
     // if no startMoment specified, assume now
@@ -357,34 +358,49 @@ var util = {
       52 = weekly,
       365 = daily
     */
-    if (typeof startMoment === "unknown") {
+    if (typeof startMoment === "unknown" || startMoment == null) {
       app.l('No startMoment, setting default.',2);
       var startMoment = moment();
     }
-    if (typeof endMoment === "unknown") {
+    if (typeof endMoment === "unknown" || endMoment == null) {
       app.l('No endMoment, setting default.',2);
-      var endMoment = startMoment.add(2,'y');
+      var endMoment = moment().add(2,'y');
     }
     if( moment.isDate(firstDate) ){
       firstDate = moment(firstDate);
     }
-    console.log(startMoment);
-    console.log(endMoment);
+    //DEBUG
+    //console.log(startMoment);
+    //console.log(endMoment);
+    //console.log(firstDate);
     switch (frequency) {
       case 1:
-        var recurrence = moment()
-                      .recur({
-                        start: startMoment,
-                        end: endMoment
-                      })
+        var recurrence = moment(firstDate)
+                      .recur( endMoment )
                       .every(firstDate.date()).daysOfMonth()
                       .every(firstDate.month()).monthsOfYear();
-        console.log(recurrence.endDate(moment().add(2,'y')).all());
-        temp.r = recurrence;
+        return recurrence.all();
         break;
       case 2:
+        var month1 = 0;
+        if (firstDate.month() >= 6) {
+          month1 = firstDate.month() - 6;
+        } else {
+          month1 = firstDate.month();
+        }
+        var month2 = month1 + 6;
+        var recurrence = moment(firstDate)
+                            .recur( endMoment )
+                            .every(firstDate.date()).daysOfMonth()
+                            .every([month1, month2]).monthsOfYear();
+        return recurrence.all();
         break;
       case 4:
+        var recurrence = moment(firstDate)
+                            .recur( endMoment )
+                            .every(firstDate.date()).dayOfMonth()
+                            .every(3).months();
+        return recurrence.all();
         break;
       case 6:
         break;
@@ -402,8 +418,11 @@ var util = {
         break;
     }
   },
-  nextOccurrence : function(date, frequency){
+  nextOccurrence : function(firstDate, frequency){
     // returns a moment of the next occurence of the bill/deposit
+    // firstDate and frequency are mandatory
+    // if no startMoment specified, assume now
+    // if no endMoment specified, assume 2 years
     /* frequency:
       1 = annually,
       2 = semi-anually,
@@ -415,124 +434,46 @@ var util = {
       52 = weekly,
       365 = daily
     */
-    var now = moment();
-    var then = moment(date);
-    var next = moment({
-      'year': 1999,
-      'month': 11,
-      'date': 31,
-      'hour': 23,
-      'minute': 59,
-      'second': 59,
-      'millisecond': 0
-    });
+    if (typeof startMoment === "unknown" || startMoment == null) {
+      app.l('No startMoment, setting default.',2);
+      var startMoment = moment();
+    }
+    if (typeof endMoment === "unknown" || endMoment == null) {
+      app.l('No endMoment, setting default.',2);
+      var endMoment = moment().add(2,'y');
+    }
+    if( moment.isDate(firstDate) ){
+      firstDate = moment(firstDate);
+    }
     switch(frequency) {
       case 1:
-        if ( (now.date() > then.month()) || ((now.month() == then.month()) && (now.date() > then.date()) ) ){
-          next = moment({
-            'year': now.year(),
-            'month': then.month(),
-            'date': then.date(),
-            'hour': 23,
-            'minute': 59,
-            'second': 59,
-            'millisecond': 0
-          }).add(1,'y');
-        } else {
-          next = moment({
-            'year': now.year(),
-            'month': then.month(),
-            'date': then.date(),
-            'hour': 23,
-            'minute': 59,
-            'second': 59,
-            'millisecond': 0
-          });
-        }
+        var recurrence = moment()
+                            .recur( startMoment, endMoment )
+                            .every(firstDate.date()).daysOfMonth()
+                            .every(firstDate.month()).monthsOfYear();
+        return recurrence.next(1);
         break;
       case 2:
         var month1 = 0;
-        if (then.month() >= 6) {
-          month1 = then.month() - 6;
+        if (firstDate.month() >= 6) {
+          month1 = firstDate.month() - 6;
         } else {
-          month1 = then.month();
+          month1 = firstDate.month();
         }
         var month2 = month1 + 6;
-        var oc1 = moment({
-          'year': now.year(),
-          'month': month1,
-          'date': then.date(),
-          'hour': 23,
-          'minute': 59,
-          'second': 59,
-          'millisecond': 0
-        });
-        var oc2 = moment({
-          'year': now.year(),
-          'month': month2,
-          'date': then.date(),
-          'hour': 23,
-          'minute': 59,
-          'second': 59,
-          'millisecond': 0
-        });
-        if ( moment(now).isAfter(oc1) ){
-          next = oc2;
-        } else {
-          next = oc1;
-        }
+        
+        var recurrence = moment()
+                            .recur( startMoment, endMoment )
+                            .every(firstDate.date()).daysOfMonth()
+                            .every([month1, month2]).monthsOfYear();
+        return recurrence.next(1);
         break;
       case 4:
-        var month1 = 0;
-        if (then.month() >= 3) {
-          month1 = then.month() - 3;
-        } else {
-          month1 = then.month();
-        }
-        var month2 = month1 + 3;
-        var month3 = month2 + 3;
-        var month4 = month3 + 3;
-        var oc1 = moment({
-          'year': now.year(),
-          'month': month1,
-          'date': then.date(),
-          'hour': 23,
-          'minute': 59,
-          'second': 59,
-          'millisecond': 0
-        });
-        var oc2 = moment({
-          'year': now.year(),
-          'month': month2,
-          'date': then.date(),
-          'hour': 23,
-          'minute': 59,
-          'second': 59,
-          'millisecond': 0
-        });
-        var oc3 = moment({
-          'year': now.year(),
-          'month': month3,
-          'date': then.date(),
-          'hour': 23,
-          'minute': 59,
-          'second': 59,
-          'millisecond': 0
-        });
-        var oc4 = moment({
-          'year': now.year(),
-          'month': month4,
-          'date': then.date(),
-          'hour': 23,
-          'minute': 59,
-          'second': 59,
-          'millisecond': 0
-        });
-        if ( moment(now).isAfter(oc1) ){
-          next = oc2;
-        } else {
-          next = oc1;
-        }
+        var recurrence = moment(firstDate)
+                            .recur( startMoment, endMoment )
+                            .every(firstDate.date()).daysOfMonth()
+                            .every(3).months();
+        return recurrence.next(1);
         break;
       case 12:
         var delta = moment();
